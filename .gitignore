@@ -1,0 +1,21 @@
+# Ignorar ambiente virtual do Python
+venv/
+.venv/
+
+# Ignorar arquivos de cache e compilados do Python
+__pycache__/
+*.pyc
+
+# Ignorar arquivos temporários de editores/IDE (ex: VS Code)
+.vscode/
+
+# Ignorar pontos de controle do Jupyter Notebooks
+.ipynb_checkpoints/
+
+# Ignorar a pasta de imagens dos usuários (NÃO ENVIAR PARA O GITHUB)
+images/
+
+# Ignorar arquivos de dados sensíveis ou gerados localmente (ex: logs, bancos de dados locais)
+*.log
+*.sqlite3
+db.sqlite3
