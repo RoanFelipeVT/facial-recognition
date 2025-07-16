@@ -12,9 +12,6 @@ __pycache__/
 # Ignorar pontos de controle do Jupyter Notebooks
 .ipynb_checkpoints/
 
-# Ignorar a pasta de imagens dos usuários (NÃO ENVIAR PARA O GITHUB)
-images/
-
 # Ignorar arquivos de dados sensíveis ou gerados localmente (ex: logs, bancos de dados locais)
 *.log
 *.sqlite3
