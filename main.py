@@ -7,10 +7,8 @@ app = FastAPI(
     description="Backend para gerenciamento de usuários e reconhecimento facial com autenticação JWT para administradores."
 )
 
-""" Cria as tabelas no banco de dados, só deve ser chamada na inicialização do banco
- Se estiver usando um banco de dados existente, comente a linha abaixo para evitar recriação
-"""
-# Base.metadata.create_all(bind=engine)
+
+Base.metadata.create_all(bind=engine)
 
 # Inclui as rotas
 app.include_router(admin.router)

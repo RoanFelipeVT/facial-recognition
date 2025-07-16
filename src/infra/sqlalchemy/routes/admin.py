@@ -11,7 +11,7 @@ from ..models.admin import Admin
 router = APIRouter(prefix="/admin", tags=["Admin"])
 
 @router.post("/register", response_model=AdminResponse)
-def register_admin(admin: AdminCreate, db: Session = Depends(get_db), current_admin: Admin = Depends(get_current_admin)):
+def register_admin(admin: AdminCreate, db: Session = Depends(get_db)):
     """Cria um novo administrador no sistema.
     Apenas administradores autenticados podem usar esta rota."""
     admin_repo = AdminRepository(db)

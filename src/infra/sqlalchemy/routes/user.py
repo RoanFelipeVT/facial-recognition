@@ -26,7 +26,7 @@ async def create_user_endpoint(
     """
     user_repo = UserRepository(db)
     try:
-        user_data = UserCreate(name=name, position=position)
+        user_data = UserCreate(name=name, position=position, cellphone=cellphone, email=email)
         image_content = await image_file.read()
         new_user = user_repo.create_user(user_data, image_content)
         return new_user

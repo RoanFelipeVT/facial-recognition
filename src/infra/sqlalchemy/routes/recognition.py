@@ -1,12 +1,11 @@
 from fastapi import APIRouter, Depends, UploadFile, File, HTTPException, status
 from sqlalchemy.orm import Session
-import numpy as np
-import cv2
-import json
+from datetime import datetime
 from ..database import get_db
 from ..repositories.user import UserRepository
 
 router = APIRouter(prefix="/recognition", tags=["Face Recognition"])
+
 
 @router.post("/", summary="Reconhecer um rosto a partir de uma imagem", response_model=dict)
 async def recognize_face_endpoint(
