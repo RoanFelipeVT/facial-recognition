@@ -1,11 +1,16 @@
-from pydantic import BaseModel
-from typing import Optional, List, Any
+from pydantic import BaseModel, AfterValidator, ValidationError
+from typing import Optional, Annotated
+from src.infra.sqlalchemy.models.validators.validators import is_char, is_digit
+
 
 class UserBase(BaseModel):
-    name: str
+    name: Annotated[str, AfterValidator(is_char)] 
     position: Optional[str] = None
-    cellphone: str
+    cellphone: Annotated[str, AfterValidator(is_digit)]
     email: str
+
+
+
     
 
 class UserCreate(UserBase):
