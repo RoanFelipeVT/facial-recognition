@@ -21,7 +21,7 @@ class UserResponse(UserBase):
     # Aqui você pode adicionar campos adicionais que deseja retornar na resposta
     id: int
     image_path: Optional[str] = None
-    pass 
+     
     
 
     class Config:
