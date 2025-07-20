@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from src.infra.sqlalchemy.models.user import User, Admin
 from src.schemas import schemas
-from src.infra.sqlalchemy.security import hash_password, verify_password
+from src.infra.sqlalchemy.security import verify_password
 
 class UserRepository:
     def __init__(self, db: Session):

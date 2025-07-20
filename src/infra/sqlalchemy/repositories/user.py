@@ -20,13 +20,13 @@ class UserRepository:
         if not os.path.exists(self.IMAGE_DIR):
             os.makedirs(self.IMAGE_DIR)
 
-    def get_user(self, user_id: int):
+    def get_user(self, user_id: int) -> User:
         return self.db.query(User).filter(User.id == user_id).first()
 
     def get_users(self, skip: int = 0, limit: int = 100):
         return self.db.query(User).offset(skip).limit(limit).all()
 
-    def create_user(self, user_data: UserCreate, image_file_content: bytes):
+    def create_user(self, user_data: UserCreate, image_file_content: bytes) -> User:
         """
         Cria um novo usuário, processa a imagem para reconhecimento facial
         e salva o encoding e o caminho da imagem.
@@ -85,7 +85,7 @@ class UserRepository:
 
 
 
-    def recognize_face(self, image_file_content: bytes, tolerance: float = 0.5):
+    def recognize_face(self, image_file_content: bytes, tolerance: float = 0.5) -> dict:
         """
         Recebe uma imagem, detecta todos os rostos e os compara com os usuários cadastrados.
         Retorna um JSON com o status, uma lista de pessoas reconhecidas (com id, nome,

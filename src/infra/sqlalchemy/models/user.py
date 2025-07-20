@@ -1,4 +1,5 @@
 from sqlalchemy import Column, Integer, String, Text
+from sqlalchemy.orm import relationship
 from ..database import Base
 
 class User(Base):
@@ -11,3 +12,5 @@ class User(Base):
     position = Column(String(255), nullable=True)  # Posição do usuário, pode ser nulo
     image_path = Column(String(255)) # Caminho para a imagem salva
     encoding = Column(Text) # Armazenar como string JSON
+
+    logs = relationship("UserLog", back_populates="user")

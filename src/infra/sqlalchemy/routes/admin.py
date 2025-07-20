@@ -11,7 +11,7 @@ from ..models.admin import Admin
 router = APIRouter(prefix="/admin", tags=["Admin"])
 
 @router.post("/register", response_model=AdminResponse)
-def register_admin(admin: AdminCreate, db: Session = Depends(get_db)):
+def register_admin(admin: AdminCreate, db: Session = Depends(get_db)) -> AdminResponse:
     """Cria um novo administrador no sistema.
     Apenas administradores autenticados podem usar esta rota."""
     admin_repo = AdminRepository(db)
@@ -22,7 +22,7 @@ def register_admin(admin: AdminCreate, db: Session = Depends(get_db)):
 
 
 @router.post("/token", response_model=Token)
-async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)) -> Token:
     
     """Gera um token de acesso para o administrador autenticado."""
     """    Verifica as credenciais do administrador e gera um token JWT.
