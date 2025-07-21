@@ -157,14 +157,14 @@ class UserRepository:
             if best_match_index != -1 and matches[best_match_index]:
                 recognized_user_name = known_face_names[best_match_index]
                 recognized_user_id = known_face_ids[best_match_index]
-                recognized_user_position = known_face_positions[best_match_index]    # NOVO: Pega a posição
-                recognized_user_image_path = known_face_image_paths[best_match_index] # NOVO: Pega o caminho da imagem
+                recognized_user_position = known_face_positions[best_match_index]    
+                recognized_user_image_path = known_face_image_paths[best_match_index] 
 
                 recognized_people_in_image.append({
                     "id": recognized_user_id,
                     "name": recognized_user_name,
-                    "position": recognized_user_position,    # NOVO: Inclui a posição
-                    "image_path": recognized_user_image_path, # NOVO: Inclui o caminho da imagem
+                    "position": recognized_user_position,    
+                    "image_path": recognized_user_image_path, 
                     "timestamp": current_timestamp
                 })
                 logger.info(f"Rosto reconhecido: {recognized_user_name} (ID: {recognized_user_id})")
@@ -172,10 +172,20 @@ class UserRepository:
                 logger.info(f"Rosto detectado (índice {i}) não reconhecido.")
 
         final_status = bool(recognized_people_in_image)
+        user_repo_log_repo = UserLogRepository(self.db)
+        log_time = datetime.now()
+        for person in recognized_people_in_image:
+            try:
+                user_repo_log_repo.create(
+                    user_id=person["id"],
+                    log_time= log_time
+                )
+            except Exception as e:
+                logger.error(f"Erro ao registrar log para o usuário {person['name']} (ID: {person['id']}): {e}")
+
 
         return {
             "status": final_status,
-            "recognized_people": recognized_people_in_image
         }
 
     def delete_user(self, user_id: int):

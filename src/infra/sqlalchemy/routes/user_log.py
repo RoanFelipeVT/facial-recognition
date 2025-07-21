@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from typing import List
 from ..database import get_db
-from ..schemas.user_log import UserLog
+from ..schemas.user_log import UserLogResponse, UserLog
 from ..repositories.user_log import UserLogRepository
 from ..auth import get_current_admin
 from ..models.admin import Admin as AdminModel
@@ -26,11 +26,11 @@ def create_user_log_endpoint(
     return user_log_repo.create(user_id, log_time)
 
 
-@router.get("/", response_model=List[UserLog])
+@router.get("/")
 def get_user_log_endpoint(
     db: Session = Depends(get_db),
     current_admin: AdminModel = Depends(get_current_admin)
 ):
     user_log_repo = UserLogRepository(db)
-    user_logs = user_log_repo.get_user_log()
+    user_logs = user_log_repo.get_user_log_with_user_data()
     return user_logs
