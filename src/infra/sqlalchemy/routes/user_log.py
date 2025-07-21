@@ -9,13 +9,31 @@ from ..models.admin import Admin as AdminModel
 
 router = APIRouter(prefix="/users_log", tags=["UsersLog"])
 
+
+
+@router.post("/", response_model=UserLog, status_code=201)
+def create_user_log_endpoint(
+    user_id: int,
+    name: str,
+    position: str,
+    image_path: str,
+    log_time: str,
+    db: Session = Depends(get_db),
+    current_admin: AdminModel = Depends(get_current_admin)
+) -> UserLog:
+    """
+    Cria um novo log de usuário.
+    Apenas administradores autenticados podem usar esta rota.
+    """
+    user_log_repo = UserLogRepository(db)
+    return user_log_repo.create_log(user_id, name, position, image_path, log_time)
+
+
 @router.get("/", response_model=List[UserLog])
 def get_user_log_endpoint(
-    skip: int = 0,
-    limit: int = 100,
     db: Session = Depends(get_db),
     current_admin: AdminModel = Depends(get_current_admin)
 ):
     user_log_repo = UserLogRepository(db)
-    user_logs = user_log_repo.get_user_log(skip=skip, limit=limit)
+    user_logs = user_log_repo.get_user_log()
     return user_logs
