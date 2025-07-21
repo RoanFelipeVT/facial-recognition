@@ -7,6 +7,7 @@ from datetime import datetime
 from sqlalchemy.orm import Session
 from ..models.user import User
 from ..schemas.user import UserCreate
+from src.infra.sqlalchemy.repositories.user_log import UserLogRepository
 import logging
 
 # Configuração do logger
@@ -25,6 +26,7 @@ class UserRepository:
 
     def get_users(self):
         return self.db.query(User).all()
+
 
 
     def create_user(self, user_data: UserCreate, image_file_content: bytes) -> User:
@@ -68,6 +70,7 @@ class UserRepository:
         self.db.commit()
         self.db.refresh(db_user) 
 
+
         # 2. Use o ID para criar o nome do arquivo da imagem
         image_filename = f"{user_data.name.replace(' ', '_').lower()}_{db_user.id}.jpg"
         image_path = os.path.join(self.IMAGE_DIR, image_filename)
@@ -77,14 +80,11 @@ class UserRepository:
 
         # 4. Atualize o caminho da imagem no objeto do banco de dados e salve
         db_user.image_path = image_path
+
         self.db.commit() # Salva a atualização do caminho
         self.db.refresh(db_user) # Atualiza o objeto com o caminho salvo
-
+       
         return db_user
-
-
-
-
 
     def recognize_face(self, image_file_content: bytes, tolerance: float = 0.5) -> dict:
         """

@@ -14,9 +14,6 @@ router = APIRouter(prefix="/users_log", tags=["UsersLog"])
 @router.post("/", response_model=UserLog, status_code=201)
 def create_user_log_endpoint(
     user_id: int,
-    name: str,
-    position: str,
-    image_path: str,
     log_time: str,
     db: Session = Depends(get_db),
     current_admin: AdminModel = Depends(get_current_admin)
@@ -26,7 +23,7 @@ def create_user_log_endpoint(
     Apenas administradores autenticados podem usar esta rota.
     """
     user_log_repo = UserLogRepository(db)
-    return user_log_repo.create_log(user_id, name, position, image_path, log_time)
+    return user_log_repo.create(user_id, log_time)
 
 
 @router.get("/", response_model=List[UserLog])

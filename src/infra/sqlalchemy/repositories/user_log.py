@@ -11,7 +11,7 @@ class UserLogRepository:
         return self.db.query(UserLog).all()
 
 
-    def create_log(self, user_id: int, name: str, position: Optional[str], image_path: str, log_time):
+    def create(self, user_id: int, name: str, position: Optional[str], image_path: str, log_time):
         if isinstance(log_time, str):
             log_time = datetime.fromisoformat(log_time)
 

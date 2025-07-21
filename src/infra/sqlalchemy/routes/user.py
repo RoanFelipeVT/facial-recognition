@@ -46,9 +46,8 @@ def get_user_endpoint(user_id: int, db: Session = Depends(get_db), current_admin
 @router.get("/", response_model=List[UserResponse])
 def get_all_users_endpoint(db: Session = Depends(get_db), current_admin: AdminModel = Depends(get_current_admin)):
     user_repo = UserRepository(db)
-    users = user_repo.get_users()  # Sem skip e limit
+    users = user_repo.get_users() 
     return users
-
 
 @router.delete("/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_user_endpoint(user_id: int, db: Session = Depends(get_db), current_admin: AdminModel = Depends(get_current_admin)):

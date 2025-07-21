@@ -8,7 +8,7 @@ class UserRepository:
         self.db = db
 
     def create(self, admin: schemas.AdminCreate):
-      pass
+        pass
     def authenticate(self, name: str, password: str):
         admin = self.db.query(Admin).filter(Admin.name == name).first()
         if not admin:
