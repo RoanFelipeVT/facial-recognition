@@ -6,7 +6,7 @@ class UserLog(Base):
     __tablename__ = "user_logs"
 
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     log_time = Column(DateTime(timezone=True), nullable=False)
 
-    user = relationship("User", back_populates="logs")
+    user = relationship("User", back_populates="logs", passive_deletes='all')

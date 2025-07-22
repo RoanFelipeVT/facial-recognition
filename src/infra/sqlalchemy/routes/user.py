@@ -74,3 +74,24 @@ def update_user_name_endpoint(
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
         except Exception as e:
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Error updating user: {e}")
+
+
+
+@router.patch("/{user_id}/image", response_model=UserResponse)
+async def update_user_image_endpoint(
+    user_id: int,
+    image_file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+    current_admin: AdminModel = Depends(get_current_admin)
+):
+    user_repo = UserRepository(db)
+    try:
+        update_user_image_endpoint = user_repo.update_user_image(user_id, await image_file.read())
+        if not update_user_image_endpoint:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+        return update_user_image_endpoint
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)) 
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Error updating user image: {e}")
+    

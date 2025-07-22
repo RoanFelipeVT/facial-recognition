@@ -5,6 +5,7 @@ import json
 import os
 from datetime import datetime
 from sqlalchemy.orm import Session
+from  src.infra.sqlalchemy.models.user_log import UserLog
 from ..models.user import User
 from ..schemas.user import UserCreate
 from src.infra.sqlalchemy.repositories.user_log import UserLogRepository
@@ -27,32 +28,32 @@ class UserRepository:
     def get_users(self):
         return self.db.query(User).all()
 
+    def extract_face_encoding(self, image_file_content: bytes) -> np.ndarray:
 
-
-    def create_user(self, user_data: UserCreate, image_file_content: bytes) -> User:
-        """
-        Cria um novo usuário, processa a imagem para reconhecimento facial
-        e salva o encoding e o caminho da imagem.
-        """
-        # Converta os bytes da imagem para um array numpy
+    # Converte os bytes da imagem para um array numpy
         np_image = np.frombuffer(image_file_content, np.uint8)
         image_bgr = cv2.imdecode(np_image, cv2.IMREAD_COLOR)
 
         if image_bgr is None:
             raise ValueError("Não foi possível decodificar a imagem enviada.")
 
-        # Converta BGR para RGB para o face_recognition
+    # Converte BGR para RGB
         image_rgb = cv2.cvtColor(image_bgr, cv2.COLOR_BGR2RGB)
 
-        # Encontre os encodings faciais na imagem
+    # Detecta e extrai encodings
         encodings = face_recognition.face_encodings(image_rgb)
-        
+
         if not encodings:
             raise ValueError("Nenhum rosto detectado na imagem fornecida.")
         if len(encodings) > 1:
             raise ValueError("Mais de um rosto detectado na imagem. Por favor, forneça uma imagem com apenas um rosto.")
 
-        face_encoding = encodings[0]
+        return encodings[0]
+
+    def create_user(self, user_data: UserCreate, image_file_content: bytes) -> User:
+
+        # Extrai o encoding facial
+        face_encoding = self.extract_face_encoding(image_file_content)
 
         # Converta o encoding numpy array para uma lista e depois para JSON string
         encoding_str = json.dumps(face_encoding.tolist())
@@ -64,27 +65,29 @@ class UserRepository:
             cellphone=user_data.cellphone,
             email=user_data.email,
             encoding=encoding_str,
-            image_path="" # Temporariamente vazio ou None
+            image_path=""
         )
         self.db.add(db_user)
         self.db.commit()
-        self.db.refresh(db_user) 
+        self.db.refresh(db_user)
 
-
-        # 2. Use o ID para criar o nome do arquivo da imagem
+        # 2. Crie o nome do arquivo da imagem
         image_filename = f"{user_data.name.replace(' ', '_').lower()}_{db_user.id}.jpg"
         image_path = os.path.join(self.IMAGE_DIR, image_filename)
 
         # 3. Salve a imagem com o nome final
+        np_image = np.frombuffer(image_file_content, np.uint8)
+        image_bgr = cv2.imdecode(np_image, cv2.IMREAD_COLOR)
         cv2.imwrite(image_path, image_bgr)
 
-        # 4. Atualize o caminho da imagem no objeto do banco de dados e salve
+        # 4. Atualize o caminho da imagem no banco
         db_user.image_path = image_path
+        self.db.commit()
+        self.db.refresh(db_user)
 
-        self.db.commit() # Salva a atualização do caminho
-        self.db.refresh(db_user) # Atualiza o objeto com o caminho salvo
-       
         return db_user
+
+
 
     def recognize_face(self, image_file_content: bytes, tolerance: float = 0.5) -> dict:
         """
@@ -191,13 +194,19 @@ class UserRepository:
     def delete_user(self, user_id: int):
         user = self.db.query(User).filter(User.id == user_id).first()
         if user:
-            # Opcional: remover a imagem do sistema de arquivos
             if os.path.exists(user.image_path):
                 os.remove(user.image_path)
+        
+            self.db.query(UserLog).filter(UserLog.user_id == user_id).delete(synchronize_session=False)
+
+           
             self.db.delete(user)
+
+            
             self.db.commit()
             return True
         return False
+
     
     def update_user_name(self, user_id: int, name: str):
         user = self.db.query(User).filter(User.id == user_id).first()
@@ -209,4 +218,35 @@ class UserRepository:
         
         self.db.commit()
         self.db.refresh(user)
+        return user
+    
+
+    def update_user_image(self, user_id: int, image_file_content: bytes):
+        user = self.db.query(User).filter(User.id == user_id).first()
+        if not user:
+            return None
+        
+        # Extrai o novo encoding facial
+        face_encoding = self.extract_face_encoding(image_file_content)
+
+        # Converta o encoding numpy array para uma lista e depois para JSON string
+        encoding_str = json.dumps(face_encoding.tolist())
+
+        # Atualiza o encoding e a imagem do usuário
+        user.encoding = encoding_str
+
+        # Cria o nome do arquivo da nova imagem
+        image_filename = f"{user.name.replace(' ', '_').lower()}_{user.id}.jpg"
+        image_path = os.path.join(self.IMAGE_DIR, image_filename)
+
+        # Salva a nova imagem
+        np_image = np.frombuffer(image_file_content, np.uint8)
+        image_bgr = cv2.imdecode(np_image, cv2.IMREAD_COLOR)
+        cv2.imwrite(image_path, image_bgr)
+
+        user.image_path = image_path
+
+        self.db.commit()
+        self.db.refresh(user)
+
         return user
