@@ -55,3 +55,22 @@ def delete_user_endpoint(user_id: int, db: Session = Depends(get_db), current_ad
     if not user_repo.delete_user(user_id):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found or could not be deleted")
     return {"message": "User deleted successfully"}
+
+
+@router.patch("/{user_id}", response_model=UserResponse)
+def update_user_name_endpoint(
+        user_id: int,
+        name: Optional[str] = Form(None),
+        db: Session = Depends(get_db),
+        current_admin: AdminModel = Depends(get_current_admin)
+    ):
+        user_repo = UserRepository(db)
+        try:
+            updated_user = user_repo.update_user_name(user_id, name)
+            if not updated_user:
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+            return updated_user
+        except ValueError as e:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+        except Exception as e:
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Error updating user: {e}")

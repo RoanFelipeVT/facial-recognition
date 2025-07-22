@@ -198,3 +198,15 @@ class UserRepository:
             self.db.commit()
             return True
         return False
+    
+    def update_user_name(self, user_id: int, name: str):
+        user = self.db.query(User).filter(User.id == user_id).first()
+        if not user:
+            return None
+        
+        if name:
+            user.name = name
+        
+        self.db.commit()
+        self.db.refresh(user)
+        return user
