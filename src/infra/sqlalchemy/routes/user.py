@@ -12,9 +12,7 @@ router = APIRouter(prefix="/users", tags=["Users"])
 @router.post("/", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 async def create_user_endpoint(
     name: str = Form(...),
-    position: Optional[str] = Form(None),
     cellphone: str = Form(...),
-    email: str = Form(...),
     image_file: UploadFile = File(...),
     db: Session = Depends(get_db),
     current_admin: AdminModel = Depends(get_current_admin)
@@ -26,7 +24,7 @@ async def create_user_endpoint(
     """
     user_repo = UserRepository(db)
     try:
-        user_data = UserCreate(name=name, position=position, cellphone=cellphone, email=email)
+        user_data = UserCreate(name=name, cellphone=cellphone)
         image_content = await image_file.read()
         new_user = user_repo.create_user(user_data, image_content)
         return new_user

@@ -1,5 +1,5 @@
 def is_char(value: str) -> str:
-    if not value.isalpha():
+    if not value.isalpha() and value.find(' ') == 0:
         raise ValueError("Value must contain only alphabetic characters")
     return value
 

@@ -61,9 +61,7 @@ class UserRepository:
         # 1. Crie o usuário no banco de dados
         db_user = User(
             name=user_data.name,
-            position=user_data.position,
             cellphone=user_data.cellphone,
-            email=user_data.email,
             encoding=encoding_str,
             image_path=""
         )
@@ -93,37 +91,42 @@ class UserRepository:
         """
         Recebe uma imagem, detecta todos os rostos e os compara com os usuários cadastrados.
         Retorna um JSON com o status, uma lista de pessoas reconhecidas (com id, nome,
-        posição, caminho da imagem e data/hora de entrada).
+        telefone, caminho da imagem e data/hora de entrada).
         """
         # Carregar todos os usuários do banco de dados
-        all_users = self.db.query(User).all()
-        known_face_encodings = []
-        known_face_names = []
-        known_face_ids = []
-        known_face_positions = []      # NOVO: Lista para armazenar as posições
-        known_face_image_paths = []    # NOVO: Lista para armazenar os caminhos das imagens
+        users = self.db.query(User).all() 
 
-        if not all_users:
+
+        user_encodings = []
+        user_names = []
+        user_ids = []
+        user_cellphones = []
+        user_image_paths = []
+
+        if not users:
             logger.info("Tentativa de reconhecimento sem usuários cadastrados no banco de dados.")
             return {
                 "status": False,
                 "recognized_people": []
             }
 
-        for user in all_users:
+        for user in users:
             try:
                 # Converte a string JSON do encoding de volta para array numpy
                 encoding_list = json.loads(user.encoding)
-                known_face_encodings.append(np.array(encoding_list))
-                known_face_names.append(user.name)
-                known_face_ids.append(user.id)
-                known_face_positions.append(user.position)        # NOVO: Adiciona a posição do usuário
-                known_face_image_paths.append(user.image_path)    # NOVO: Adiciona o caminho da imagem do usuário
+                user_encodings.append(np.array(encoding_list))
+                user_names.append(user.name)
+                user_ids.append(user.id)
+                user_cellphones.append(user.cellphone)
+                user_image_paths.append(user.image_path)
             except json.JSONDecodeError as e:
                 logger.error(f"Erro ao decodificar encoding para o usuário {user.name} (ID: {user.id}): {e}. Ignorando.")
                 continue
+            except AttributeError as e:
+                logger.error(f"Atributo ausente no usuário {user.name} (ID: {user.id}): {e}. Ignorando.")
+                continue
             except Exception as e:
-                logger.error(f"Erro inesperado ao processar encoding do usuário {user.name} (ID: {user.id}): {e}. Ignorando.")
+                logger.error(f"Erro inesperado ao processar dados do usuário {user.name} (ID: {user.id}): {e}. Ignorando.")
                 continue
 
         # Processar a imagem recebida
@@ -150,24 +153,25 @@ class UserRepository:
 
         # Processar cada rosto detectado na imagem
         for i, face_encoding_to_check in enumerate(face_encodings):
-            matches = face_recognition.compare_faces(known_face_encodings, face_encoding_to_check, tolerance=tolerance)
-            face_distances = face_recognition.face_distance(known_face_encodings, face_encoding_to_check)
+            # Compara com os encodings dos usuários conhecidos
+            matches = face_recognition.compare_faces(user_encodings, face_encoding_to_check, tolerance=tolerance)
+            face_distances = face_recognition.face_distance(user_encodings, face_encoding_to_check)
 
             best_match_index = -1
             if len(face_distances) > 0:
                 best_match_index = np.argmin(face_distances)
 
             if best_match_index != -1 and matches[best_match_index]:
-                recognized_user_name = known_face_names[best_match_index]
-                recognized_user_id = known_face_ids[best_match_index]
-                recognized_user_position = known_face_positions[best_match_index]    
-                recognized_user_image_path = known_face_image_paths[best_match_index] 
+                recognized_user_name = user_names[best_match_index]
+                recognized_user_id = user_ids[best_match_index]
+                recognized_user_cellphone = user_cellphones[best_match_index]
+                recognized_user_image_path = user_image_paths[best_match_index]
 
                 recognized_people_in_image.append({
                     "id": recognized_user_id,
                     "name": recognized_user_name,
-                    "position": recognized_user_position,    
-                    "image_path": recognized_user_image_path, 
+                    "cellphone": recognized_user_cellphone,
+                    "image_path": recognized_user_image_path,
                     "timestamp": current_timestamp
                 })
                 logger.info(f"Rosto reconhecido: {recognized_user_name} (ID: {recognized_user_id})")
@@ -175,7 +179,7 @@ class UserRepository:
                 logger.info(f"Rosto detectado (índice {i}) não reconhecido.")
 
         final_status = bool(recognized_people_in_image)
-        user_repo_log_repo = UserLogRepository(self.db)
+        user_repo_log_repo = UserLogRepository(self.db) # Assumindo que UserLogRepository está disponível
         log_time = datetime.now()
         for person in recognized_people_in_image:
             try:
@@ -186,9 +190,9 @@ class UserRepository:
             except Exception as e:
                 logger.error(f"Erro ao registrar log para o usuário {person['name']} (ID: {person['id']}): {e}")
 
-
         return {
             "status": final_status,
+            "recognized_people": recognized_people_in_image
         }
 
     def delete_user(self, user_id: int):

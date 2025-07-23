@@ -5,9 +5,8 @@ from src.infra.sqlalchemy.models.validators.validators import is_char, is_digit
 
 class UserBase(BaseModel):
     name: Annotated[str, AfterValidator(is_char)] 
-    position: Optional[str] = None
     cellphone: Annotated[str, AfterValidator(is_digit)]
-    email: str    
+ 
 
 class UserCreate(UserBase):
     # Essa classe é usada para criar um novo usuário, aqui você pode adicionar validações adicionais se necessário
@@ -20,4 +19,4 @@ class UserResponse(UserBase):
     
 
     class Config:
-        orm_mode = True
+        from_attributes = True

@@ -11,7 +11,7 @@ class AdminResponse(AdminBase):
     id: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class Token(BaseModel):
     access_token: str
