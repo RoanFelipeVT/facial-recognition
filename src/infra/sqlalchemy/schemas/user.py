@@ -13,7 +13,7 @@ class UserCreate(UserBase):
     pass
 
 class UserResponse(UserBase):
-    # Aqui você pode adicionar campos adicionais que deseja retornar na resposta
+    # Essa classe é usada como modelo de resposta para o usuário
     id: int
     image_path: Optional[str] = None
     

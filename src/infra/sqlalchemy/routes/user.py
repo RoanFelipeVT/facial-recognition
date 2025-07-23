@@ -93,3 +93,21 @@ async def update_user_image_endpoint(
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Error updating user image: {e}")
     
+
+@router.patch("/{user_id}/cellphone", response_model=UserResponse)
+def update_user_cellphone_endpoint(
+    user_id: int,
+    cellphone: Optional[str] = Form(None),
+    db: Session = Depends(get_db),
+    current_admin: AdminModel = Depends(get_current_admin)
+):
+    user_repo = UserRepository(db)
+    try:
+        updated_user = user_repo.update_user_cellphone(user_id, cellphone)
+        if not updated_user:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+        return updated_user
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Error updating user cellphone: {e}")    

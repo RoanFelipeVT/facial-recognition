@@ -254,3 +254,15 @@ class UserRepository:
         self.db.refresh(user)
 
         return user
+
+    def update_user_cellphone(self, user_id: int, cellphone: str):
+        user = self.db.query(User).filter(User.id == user_id).first()
+        if not user:
+            return None
+        
+        if cellphone:
+            user.cellphone = cellphone
+        
+        self.db.commit()
+        self.db.refresh(user)
+        return user
