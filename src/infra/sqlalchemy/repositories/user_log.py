@@ -23,7 +23,8 @@ class UserLogRepository:
             formatted_results.append({
                 "user_id": row.user_id,      
                 "user_name": row.user_name,     
-                "user_image_path": row.user_image_path 
+                "user_image_path": row.user_image_path,
+                "log_time": row.log_time.isoformat() if row.log_time else None
             })
         return formatted_results
 

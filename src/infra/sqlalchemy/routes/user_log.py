@@ -26,11 +26,8 @@ def create_user_log_endpoint(
     return user_log_repo.create(user_id, log_time)
 
 
-@router.get("/")
-def get_user_log_endpoint(
-    db: Session = Depends(get_db),
-    current_admin: AdminModel = Depends(get_current_admin)
-):
+@router.get("/", response_model=List[UserLogResponse])
+def get_user_log_endpoint(db: Session = Depends(get_db),current_admin: AdminModel = Depends(get_current_admin)):
     user_log_repo = UserLogRepository(db)
     user_logs = user_log_repo.get_user_log_with_user_data()
     return user_logs

@@ -141,7 +141,7 @@ class UserRepository:
         face_locations = face_recognition.face_locations(image_rgb)
         face_encodings = face_recognition.face_encodings(image_rgb, face_locations)
 
-        current_timestamp = datetime.now().isoformat()
+        log_time = datetime.now().isoformat()
         recognized_people_in_image = []
 
         if not face_encodings:
@@ -172,7 +172,7 @@ class UserRepository:
                     "name": recognized_user_name,
                     "cellphone": recognized_user_cellphone,
                     "image_path": recognized_user_image_path,
-                    "timestamp": current_timestamp
+                    "log_time": log_time
                 })
                 logger.info(f"Rosto reconhecido: {recognized_user_name} (ID: {recognized_user_id})")
             else:
@@ -180,7 +180,7 @@ class UserRepository:
 
         final_status = bool(recognized_people_in_image)
         user_repo_log_repo = UserLogRepository(self.db) # Assumindo que UserLogRepository está disponível
-        log_time = datetime.now()
+        #log_time = datetime.now()
         for person in recognized_people_in_image:
             try:
                 user_repo_log_repo.create(

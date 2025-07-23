@@ -14,9 +14,9 @@ class UserLog(BaseModel):
 
 class UserLogResponse(BaseModel):
     user_id: int
-    log_time: datetime
-    user_name: str
-    user_image_path: str
+    log_time: Optional[datetime] = None
+    user_name: Annotated[str, AfterValidator(is_char)] 
+    user_image_path:str
 
     class Config:
         from_attributes = True
