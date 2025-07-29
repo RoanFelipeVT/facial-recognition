@@ -13,7 +13,7 @@ RUN apt-get update && apt-get install -y \
 # Define diretório de trabalho
 WORKDIR /app
 
-# Copia arquivos
+# Copia arquivos do seu repositório Git
 COPY . .
 
 # Instala dependências Python
@@ -23,5 +23,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Expõe porta 3000 (API)
 EXPOSE 3000
 
-# Comando para iniciar o FastAPI com uvicorn
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "3000"]
+# --- COMANDO TEMPORÁRIO PARA MANUTENÇÃO ---
+# Este comando mantém o contentor a funcionar sem fazer nada,
+# permitindo-nos aceder ao terminal para executar o Alembic.
+CMD ["tail", "-f", "/dev/null"]
