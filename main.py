@@ -1,21 +1,19 @@
 from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-import os
+from fastapi.middleware.cors import CORSMiddleware
+from src.infra.sqlalchemy.database import engine, Base
+from src.services.user_service import router as user_router
+from src.services.admin_service import router as admin_router
+from src.services.user_log_service import router as user_log_router
 
-from src.infra.sqlalchemy.database import Base, engine
-from src.infra.sqlalchemy.routes import admin, user, recognition, user_log
+# Cria as tabelas no banco de dados (se não existirem)
+# NOTA: É melhor usar Alembic para isto, mas para garantir que funciona, mantemos aqui.
+Base.metadata.create_all(bind=engine)
 
-app = FastAPI(
-    title="API de Reconhecimento Facial",
-    description="Backend para gerenciamento de usuários e reconhecimento facial com autenticação JWT para administradores."
-)
+app = FastAPI()
 
-# Permitir frontend
-origins = [
-    "http://localhost:3001",
-]
-
+# Configuração do CORS
+origins = ["*"]
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
@@ -24,22 +22,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Garantir que pasta de imagens exista
-if not os.path.exists("images"):
-    os.makedirs("images")
+# Inclui as rotas da API
+app.include_router(user_router, prefix="/api")
+app.include_router(admin_router, prefix="/api")
+app.include_router(user_log_router, prefix="/api")
 
-# Expor imagens publicamente
-app.mount("/images", StaticFiles(directory="images"), name="images")
-
-# Criar tabelas do banco
-Base.metadata.create_all(bind=engine)
-
-# Inclui as rotas
-app.include_router(admin.router)
-app.include_router(user.router)
-app.include_router(user_log.router)
-app.include_router(recognition.router) 
-
-@app.get("/")
-def read_root():
-    return {"message": "Bem-vindo à API de Reconhecimento Facial!"}
+# --- NOVO CÓDIGO PARA SERVIR O FRONTEND ---
+# Monta a pasta 'static' (que contém o nosso site Next.js) na raiz.
+# O FastAPI irá agora procurar por um 'index.html' e servir o seu site.
+app.mount("/", StaticFiles(directory="static", html=True), name="static")
