@@ -1,14 +1,22 @@
+# --- Conteúdo CORRIGIDO para o ficheiro: src/infra/sqlalchemy/database.py ---
+
+import os
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
-# Substitua pelas suas credenciais do MySQL
-# Ex: mysql+mysqlconnector://user:password@homst/database_name
-DATABASE_URL = "mysql+pymysql://root:Koraliny2406%40@db:3306/facialrecognition"
+# Lê a string de conexão a partir da variável de ambiente do EasyPanel.
+DATABASE_URL = os.getenv("DATABASE_URL")
 
+# Lança um erro claro se a variável de ambiente não for encontrada.
+if not DATABASE_URL:
+    raise ValueError("A variável de ambiente DATABASE_URL não foi definida!")
 
+# Cria o motor da base de dados usando a URL correta.
 engine = create_engine(DATABASE_URL)
+
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
 Base = declarative_base()
 
 def get_db():
