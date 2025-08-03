@@ -10,3 +10,4 @@ opencv-python
 face-recognition
 numpy
 alembic
+bcrypt==3.2.2
