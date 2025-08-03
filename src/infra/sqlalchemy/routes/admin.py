@@ -48,6 +48,10 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
         data={"sub": admin.name}, expires_delta=access_token_expires
     )
     return {"access_token": access_token, "token_type": "bearer"}
+    
+@router.get("/test-route")
+def test_route():
+    return {"message": "A rota de admin está a funcionar!"}
 
 
 """@router.post("/initial-setup", response_model=AdminResponse, summary="Cria o primeiro admin (USE COM CAUTELA)")
