@@ -1,4 +1,4 @@
-from src.infra.sqlalchemy.repository.admin_repository import AdminRepository
+from src.infra.sqlalchemy.repositories.admin_repository import AdminRepository
 from src.schemas.admin_schema import AdminCreate
 from src.infra.sqlalchemy.database import SessionLocal
 import getpass
