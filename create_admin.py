@@ -1,12 +1,14 @@
+import sys
+import os
+import getpass
+
+sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
+
 from src.infra.sqlalchemy.repositories.admin_repository import AdminRepository
 from src.schemas.admin_schema import AdminCreate
 from src.infra.sqlalchemy.database import SessionLocal
-import getpass
 
 def create_admin_user():
-    """
-    Script de linha de comando para criar um novo utilizador administrador.
-    """
     print("--- Criação de Novo Administrador ---")
     
     name = input("Digite o nome de utilizador do novo admin: ")
