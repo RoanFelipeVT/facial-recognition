@@ -7,7 +7,7 @@ from ..repositories.user import UserRepository
 router = APIRouter(prefix="/recognition", tags=["Face Recognition"])
 
 
-@router.post("/", summary="Reconhecer um rosto a partir de uma imagem", response_model=dict)
+@router.post("/recognize", summary="Reconhecer um rosto a partir de uma imagem", response_model=dict)
 async def recognize_face_endpoint(
     image_file: UploadFile = File(..., description="Imagem do rosto para reconhecimento"),
     db: Session = Depends(get_db)
