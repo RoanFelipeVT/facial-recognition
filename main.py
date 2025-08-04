@@ -10,6 +10,12 @@ app = FastAPI(
     description="Backend para gerenciamento de usuários e reconhecimento facial com autenticação JWT para administradores."
 )
 
+# Rota de teste para a raiz.
+@app.get("/")
+def read_root():
+    return {"message": "Bem-vindo à API de Reconhecimento Facial!"}
+
+# --- Configuração do CORS ---
 origins = [
     "https://nick-frontend-app.zxwnxt.easypanel.host",
     "http://localhost:3001",
@@ -23,17 +29,15 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# --- Servir arquivos estáticos ---
 if not os.path.exists("images"):
     os.makedirs("images")
-
-# Servir a pasta de imagens como arquivos estáticos
 app.mount("/images", StaticFiles(directory="images"), name="images")
 
+
+# --- Inclusão dos Roteadores ---
+# Todas as suas rotas originais continuam aqui, sem alterações.
 app.include_router(admin.router, prefix="/api")
 app.include_router(user.router, prefix="/api")
 app.include_router(user_log.router, prefix="/api")
 app.include_router(recognition.router, prefix="/api")
-
-@app.get("/")
-def read_root():
-    return {"message": "Bem-vindo à API de Reconhecimento Facial!"}
