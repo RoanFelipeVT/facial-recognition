@@ -3,25 +3,23 @@ from sqlalchemy.orm import Session
 from datetime import datetime
 from ..database import get_db
 from ..repositories.user import UserRepository
+from fastapi import Request
 
 router = APIRouter(prefix="/recognition", tags=["Face Recognition"])
 
-
-@router.post("/recognize", summary="Reconhecer um rosto a partir de uma imagem", response_model=dict)
-async def recognize_face_endpoint(
-    image_file: UploadFile = File(..., description="Imagem do rosto para reconhecimento"),
-    db: Session = Depends(get_db)
-):
+@router.post("/recognize", summary="Reconhecer um rosto a partir de uma imagem (RAW JPEG)", response_model=dict)
+async def recognize_face_endpoint(request: Request, db: Session = Depends(get_db)):
     """
-    Este endpoint recebe uma imagem e tenta reconhecer um rosto nela.
-    Compara o rosto detectado com os usuários cadastrados no banco de dados.
+    Novo endpoint que aceita imagem RAW (Content-Type: image/jpeg) diretamente no corpo da requisição.
+    Compatível com a ESP-CAM.
     """
     user_repo = UserRepository(db)
     try:
-        image_content = await image_file.read()
+        # Lê os bytes brutos enviados pela ESP-CAM
+        image_content = await request.body()
         result = user_repo.recognize_face(image_content)
         return result
     except ValueError as e:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+        raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Erro interno no servidor: {e}")
+        raise HTTPException(status_code=500, detail=f"Erro interno no servidor: {e}")
