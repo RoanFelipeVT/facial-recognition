@@ -79,7 +79,7 @@ class UserRepository:
         cv2.imwrite(image_path, image_bgr)
 
         # 4. Atualize o caminho da imagem no banco
-        db_user.image_path = image_path
+        db_user.image_path = f"/images/{image_filename}"
         self.db.commit()
         self.db.refresh(db_user)
 
@@ -248,7 +248,7 @@ class UserRepository:
         image_bgr = cv2.imdecode(np_image, cv2.IMREAD_COLOR)
         cv2.imwrite(image_path, image_bgr)
 
-        user.image_path = image_path
+        user.image_path = f"/images/{image_filename}"
 
         self.db.commit()
         self.db.refresh(user)

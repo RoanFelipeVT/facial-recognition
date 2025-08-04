@@ -26,6 +26,9 @@ app.add_middleware(
 if not os.path.exists("images"):
     os.makedirs("images")
 
+# Servir a pasta de imagens como arquivos estáticos
+app.mount("/images", StaticFiles(directory="images"), name="images")
+
 app.include_router(admin.router, prefix="/api")
 app.include_router(user.router, prefix="/api")
 app.include_router(user_log.router, prefix="/api")
